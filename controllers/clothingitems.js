@@ -29,7 +29,7 @@ const createItem = async (req, res) => {
     if (err.name === 'ValidationError') {
       return res.status(BAD_REQUEST).json({ message: 'Invalid item data' });
     }
-    return res.status(SERVER_ERROR).json({ message: "Failed to create item", error: err.message });
+    return res.status(SERVER_ERROR).json({ message: "Failed to create item"});
   }
 };
 
@@ -49,7 +49,7 @@ const deleteItem = async (req, res) => {
     return res.status(200).json({ message: "Item successfully deleted", item: deletedItem });
   } catch (err) {
     console.error("Error occurred during deletion:", err);
-    return res.status(SERVER_ERROR).json({ message: "Failed to delete item", error: err.message }); 
+    return res.status(SERVER_ERROR).json({ message: "Failed to delete item"});
   }
 };
 

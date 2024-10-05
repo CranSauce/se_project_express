@@ -18,13 +18,13 @@ const likeItem = async (req, res) => {
       { new: true }
     ).orFail();
 
-    return res.status(200).json(item); // Add return here
+    return res.status(200).json(item);
   } catch (err) {
     console.error(err);
     if (err.name === 'DocumentNotFoundError') {
       return res.status(NOT_FOUND).json({ message: 'Item not found' });
     }
-    return res.status(SERVER_ERROR).json({ message: 'Failed to like item', error: err.message }); // Add return here
+    return res.status(SERVER_ERROR).json({ message: 'Failed to like item'});
   }
 };
 
@@ -49,7 +49,7 @@ const dislikeItem = async (req, res) => {
     if (err.name === 'DocumentNotFoundError') {
       return res.status(NOT_FOUND).json({ message: 'Item not found' });
     }
-    return res.status(SERVER_ERROR).json({ message: 'Failed to unlike item', error: err.message }); 
+    return res.status(SERVER_ERROR).json({ message: 'Failed to unlike item'});
   }
 };
 

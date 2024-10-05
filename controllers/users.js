@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
     return res.status(200).json(users);
   } catch (err) {
     console.error(err);
-    return res.status(SERVER_ERROR).json({ message: "Failed to retrieve users", error: err.message });
+    return res.status(SERVER_ERROR).json({ message: "Failed to retrieve users"});
   }
 };
 
@@ -27,14 +27,14 @@ const getUser = async (req, res) => {
     return res.status(200).json(user);
   } catch (err) {
     console.error(err);
-    return res.status(SERVER_ERROR).json({ message: "Failed to retrieve user", error: err.message });
+    return res.status(SERVER_ERROR).json({ message: "Failed to retrieve user" });
   }
 };
 
 const createUser = async (req, res) => {
   const { name, avatar } = req.body;
 
-  
+
   if (!name || !avatar) {
     return res.status(BAD_REQUEST).json({ message: "Name and avatar are required." });
   }
@@ -50,7 +50,7 @@ const createUser = async (req, res) => {
       return res.status(BAD_REQUEST).json({ message: 'Invalid user data' });
     }
 
-    return res.status(SERVER_ERROR).json({ message: "Failed to create user", error: err.message });
+    return res.status(SERVER_ERROR).json({ message: "Failed to create user" });
   }
 };
 
