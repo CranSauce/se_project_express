@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 const getItems = async (req, res) => {
   try {
@@ -17,12 +22,6 @@ const getItems = async (req, res) => {
 const createItem = async (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
-
-  if (!name || !weather || !imageUrl) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "All fields are required." });
-  }
 
   try {
     const newItem = new ClothingItem({ name, weather, imageUrl, owner });
@@ -53,7 +52,7 @@ const deleteItem = async (req, res) => {
     const userId = req.user._id;
     if (!item.owner.equals(userId)) {
       return res
-        .status(403)
+        .status(FORBIDDEN)
         .json({ message: "You are not authorized to delete this item." });
     }
 
@@ -67,4 +66,54 @@ const deleteItem = async (req, res) => {
   }
 };
 
-module.exports = { getItems, createItem, deleteItem };
+const likeItem = async (req, res) => {
+  const { itemId } = req.params;
+  const userId = req.user._id;
+
+  if (!mongoose.isValidObjectId(itemId)) {
+    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+  }
+
+  try {
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    ).orFail();
+
+    return res.status(200).json(item);
+  } catch (err) {
+    console.error(err);
+    if (err.name === "DocumentNotFoundError") {
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
+    }
+    return res.status(SERVER_ERROR).json({ message: "Failed to like item" });
+  }
+};
+
+const dislikeItem = async (req, res) => {
+  const { itemId } = req.params;
+  const userId = req.user._id;
+
+  if (!mongoose.isValidObjectId(itemId)) {
+    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+  }
+
+  try {
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $pull: { likes: userId } },
+      { new: true }
+    ).orFail();
+
+    return res.status(200).json(item);
+  } catch (err) {
+    console.error(err);
+    if (err.name === "DocumentNotFoundError") {
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
+    }
+    return res.status(SERVER_ERROR).json({ message: "Failed to unlike item" });
+  }
+};
+
+module.exports = { getItems, createItem, deleteItem, likeItem, dislikeItem };

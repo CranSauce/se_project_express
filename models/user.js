@@ -1,13 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-
-class UnauthorizedError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "UnauthorizedError";
-  }
-}
+const { UnauthorizedError } = require("../utils/errors");
 
 const userSchema = new mongoose.Schema({
   name: {

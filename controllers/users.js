@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
@@ -11,39 +10,6 @@ const {
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const getUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    return res.status(200).json(users);
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "Failed to retrieve users" });
-  }
-};
-
-const getUser = async (req, res) => {
-  const { userId } = req.params;
-
-  if (!mongoose.isValidObjectId(userId)) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid user ID format" });
-  }
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(NOT_FOUND).json({ message: "User not found" });
-    }
-    return res.status(200).json(user);
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "Failed to retrieve user" });
-  }
-};
-
 const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
 
@@ -54,11 +20,6 @@ const createUser = async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(CONFLICT).json({ message: "Email already in use." });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -67,6 +28,7 @@ const createUser = async (req, res) => {
       email,
       password: hashedPassword,
     });
+
     return res.status(201).json(newUser);
   } catch (err) {
     console.error(err);
@@ -74,14 +36,13 @@ const createUser = async (req, res) => {
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid user data" });
     }
-
     if (err.code === 11000) {
       return res.status(CONFLICT).json({ message: "Email already exists" });
     }
-
     return res.status(SERVER_ERROR).json({ message: "Failed to create user" });
   }
 };
+
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -160,8 +121,6 @@ const updateUser = async (req, res) => {
 };
 
 module.exports = {
-  getUsers,
-  getUser,
   createUser,
   login,
   getCurrentUser,
