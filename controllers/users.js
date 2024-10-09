@@ -29,7 +29,7 @@ const createUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    return res.status(201).json(newUser.name, newUser.avatar, newUser.email);
+    return res.status(201).json({ name: newUser.name, avatar: newUser.avatar, email: newUser.email });
   } catch (err) {
     console.error(err);
 

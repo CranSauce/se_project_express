@@ -5,8 +5,8 @@ const authRouter = require("./auth");
 const { NOT_FOUND } = require("../utils/errors");
 
 
-router.use("/signup", authRouter);
-router.use("/signin", authRouter);
+router.use("/", authRouter);
+router.use("/", authRouter);
 router.use("/users", userRouter);
 router.use("/items", itemRouter);
 
