@@ -11,9 +11,9 @@ const {
 
 router.get("/", getItems);
 router.post("/", auth, createItem);
-router.delete("/:itemId", deleteItem);
+router.delete("/:itemId", auth, deleteItem);
 
-router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", dislikeItem);
+router.put("/:itemId/likes", auth, likeItem);
+router.delete("/:itemId/likes", auth, dislikeItem);
 
 module.exports = router;
