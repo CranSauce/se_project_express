@@ -60,7 +60,10 @@ const login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({
+      token,
+      user: { name: user.name, avatar: user.avatar, email: user.email }
+    });
   } catch (err) {
     if (err.name === "UnauthorizedError") {
       return res
@@ -71,6 +74,7 @@ const login = async (req, res) => {
     return res.status(SERVER_ERROR).json({ message: "Failed to log in." });
   }
 };
+
 
 const getCurrentUser = async (req, res) => {
   try {
