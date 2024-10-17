@@ -83,7 +83,7 @@ const likeItem = async (req, res) => {
 
     return res.status(200).json(item);
   } catch (err) {
-    console.error(err);
+    console.error(`Error liking item: ${itemId} by user: ${userId}`, err);
     if (err.name === "DocumentNotFoundError") {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
@@ -108,12 +108,13 @@ const dislikeItem = async (req, res) => {
 
     return res.status(200).json(item);
   } catch (err) {
-    console.error(err);
+    console.error(`Error unliking item: ${itemId} by user: ${userId}`, err);
     if (err.name === "DocumentNotFoundError") {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
     return res.status(SERVER_ERROR).json({ message: "Failed to unlike item" });
   }
 };
+
 
 module.exports = { getItems, createItem, deleteItem, likeItem, dislikeItem };

@@ -62,7 +62,7 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       token,
-      user: { name: user.name, avatar: user.avatar, email: user.email }
+      user: { _id: user._id, name: user.name, avatar: user.avatar, email: user.email }
     });
   } catch (err) {
     if (err.name === "UnauthorizedError") {
@@ -123,6 +123,7 @@ const updateUser = async (req, res) => {
     return res.status(SERVER_ERROR).json({ message: "Failed to update user" });
   }
 };
+
 
 module.exports = {
   createUser,
