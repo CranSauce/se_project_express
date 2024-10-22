@@ -24,7 +24,7 @@ mongoose
 app.use(requestLogger);
 app.use("/", mainRouter);
 
-app.listen(PORT, () => {});
+app.listen(PORT, '0.0.0.0', () => {});
 
 app.use(errorLogger);
 
