@@ -4,19 +4,16 @@ const User = require("../models/user");
 const {
   BAD_REQUEST,
   NOT_FOUND,
-  SERVER_ERROR,
   CONFLICT,
   UNAUTHORIZED,
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || !avatar || !email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "Name, avatar, email, and password are required." });
+    return next({ statusCode: BAD_REQUEST, message: "Name, avatar, email, and password are required." });
   }
 
   try {
@@ -31,26 +28,23 @@ const createUser = async (req, res) => {
 
     return res.status(201).json({ name: newUser.name, avatar: newUser.avatar, email: newUser.email });
   } catch (err) {
-    console.error(err);
-
     if (err.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid user data" });
+      err.statusCode = BAD_REQUEST;
+      err.message = "Invalid user data";
     }
     if (err.code === 11000) {
-      return res.status(CONFLICT).json({ message: "Email already exists" });
+      err.statusCode = CONFLICT;
+      err.message = "Email already exists";
     }
-    return res.status(SERVER_ERROR).json({ message: "Failed to create user" });
+    next(err); // Pass any error to the centralized error handler
   }
 };
 
-
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "Email and password are required." });
+    return next({ statusCode: BAD_REQUEST, message: "Email and password are required." });
   }
 
   try {
@@ -62,44 +56,36 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       token,
-      user: { _id: user._id, name: user.name, avatar: user.avatar, email: user.email }
+      user: { _id: user._id, name: user.name, avatar: user.avatar, email: user.email },
     });
   } catch (err) {
     if (err.name === "UnauthorizedError") {
-      return res
-        .status(UNAUTHORIZED)
-        .json({ message: "Invalid email or password." });
+      err.statusCode = UNAUTHORIZED;
+      err.message = "Invalid email or password.";
     }
-    console.error(err);
-    return res.status(SERVER_ERROR).json({ message: "Failed to log in." });
+    next(err); // Pass any error to the centralized error handler
   }
 };
 
-
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: "User not found" });
+      return next({ statusCode: NOT_FOUND, message: "User not found" });
     }
 
     return res.status(200).json(user);
   } catch (err) {
-    console.error(err);
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "Failed to retrieve user data" });
+    next(err); // Pass any error to the centralized error handler
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   const { name, avatar } = req.body;
 
   if (!name || !avatar) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "Name and avatar are required." });
+    return next({ statusCode: BAD_REQUEST, message: "Name and avatar are required." });
   }
 
   try {
@@ -110,20 +96,18 @@ const updateUser = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(NOT_FOUND).json({ message: "User not found" });
+      return next({ statusCode: NOT_FOUND, message: "User not found" });
     }
 
     return res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid user data" });
+      err.statusCode = BAD_REQUEST;
+      err.message = "Invalid user data";
     }
-
-    console.error(err);
-    return res.status(SERVER_ERROR).json({ message: "Failed to update user" });
+    next(err); // Pass any error to the centralized error handler
   }
 };
-
 
 module.exports = {
   createUser,

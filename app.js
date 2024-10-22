@@ -1,7 +1,11 @@
 const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
+const { errors } = require('celebrate');
 const mainRouter = require("./routes/index");
+const errorHandler = require('./middlewares/error-handler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
 
 
 const app = express();
@@ -16,6 +20,14 @@ mongoose
   .then(() => {})
   .catch(console.error);
 
+
+app.use(requestLogger);
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {});
+
+app.use(errorLogger);
+
+app.use(errors());
+
+app.use(errorHandler);
