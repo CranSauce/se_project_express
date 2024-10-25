@@ -21,4 +21,9 @@ The WTWR (What to Wear?) back-end project focuses on building a server for the a
 
 `npm run dev` — to launch the server with the hot reload feature
 
+## Links
+
+- **Visit Website**: [wtwr.clienturl.net](https://www.wtwr.clienturl.net)
+- **Backend Repository**: [GitHub - CranSauce/se_project_express](https://github.com/CranSauce/se_project_express)
+- **Frontend Repository**: [GitHub - CranSauce/se_project_react](https://github.com/CranSauce/se_project_react)
 

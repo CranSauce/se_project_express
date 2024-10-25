@@ -6,10 +6,17 @@ const { errors } = require('celebrate');
 const mainRouter = require("./routes/index");
 const errorHandler = require('./middlewares/error-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const apiLimiter = require("./utils/rateLimiter");
+const helmet = require("helmet");
 
 
 
 const app = express();
+
+app.use(helmet);
+
+app.use(apiLimiter);
+
 app.use(express.json());
 
 app.use(cors());

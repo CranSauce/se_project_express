@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, FORBIDDEN } = require("../utils/errors");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../utils/errors");
 
 const getItems = async (req, res, next) => {
   try {
@@ -21,8 +21,7 @@ const createItem = async (req, res, next) => {
     return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
-      err.statusCode = BAD_REQUEST;
-      err.message = "Invalid item data";
+      throw new BadRequestError("Invalid item data");
     }
     next(err);
   }
@@ -32,18 +31,18 @@ const deleteItem = async (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.isValidObjectId(itemId)) {
-    return next({ statusCode: BAD_REQUEST, message: "Invalid item ID" });
+    throw new BadRequestError("Invalid item ID");
   }
 
   try {
     const item = await ClothingItem.findById(itemId);
     if (!item) {
-      return next({ statusCode: NOT_FOUND, message: "Item not found" });
+      throw new NotFoundError("Item not found");
     }
 
     const userId = req.user._id;
     if (!item.owner.equals(userId)) {
-      return next({ statusCode: FORBIDDEN, message: "You are not authorized to delete this item." });
+      throw new ForbiddenError("You are not authorized to delete this item.");
     }
 
     const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
@@ -58,7 +57,7 @@ const likeItem = async (req, res, next) => {
   const userId = req.user._id;
 
   if (!mongoose.isValidObjectId(itemId)) {
-    return next({ statusCode: BAD_REQUEST, message: "Invalid item ID" });
+    throw new BadRequestError("Invalid item ID");
   }
 
   try {
@@ -66,14 +65,10 @@ const likeItem = async (req, res, next) => {
       itemId,
       { $addToSet: { likes: userId } },
       { new: true }
-    ).orFail();
+    ).orFail(() => new NotFoundError("Item not found"));
 
     return res.status(200).json(item);
   } catch (err) {
-    if (err.name === "DocumentNotFoundError") {
-      err.statusCode = NOT_FOUND;
-      err.message = "Item not found";
-    }
     next(err);
   }
 };
@@ -83,7 +78,7 @@ const dislikeItem = async (req, res, next) => {
   const userId = req.user._id;
 
   if (!mongoose.isValidObjectId(itemId)) {
-    return next({ statusCode: BAD_REQUEST, message: "Invalid item ID" });
+    throw new BadRequestError("Invalid item ID");
   }
 
   try {
@@ -91,15 +86,11 @@ const dislikeItem = async (req, res, next) => {
       itemId,
       { $pull: { likes: userId } },
       { new: true }
-    ).orFail();
+    ).orFail(() => new NotFoundError("Item not found"));
 
     return res.status(200).json(item);
   } catch (err) {
-    if (err.name === "DocumentNotFoundError") {
-      err.statusCode = NOT_FOUND;
-      err.message = "Item not found";
-    }
-    next(err); 
+    next(err);
   }
 };
 
