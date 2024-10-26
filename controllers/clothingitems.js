@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const { BadRequestError, NotFoundError, ForbiddenError } = require("../utils/errors");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../utils/errors/errors");
 
 const getItems = async (req, res, next) => {
   try {
     const items = await ClothingItem.find();
     return res.status(200).json(items);
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
@@ -21,9 +21,9 @@ const createItem = async (req, res, next) => {
     return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
-      throw new BadRequestError("Invalid item data");
+      return next(new BadRequestError("Invalid item data"));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -48,7 +48,7 @@ const deleteItem = async (req, res, next) => {
     const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
     return res.status(200).json({ message: "Item successfully deleted", item: deletedItem });
   } catch (err) {
-    next(err);
+   return next(err);
   }
 };
 
@@ -69,7 +69,7 @@ const likeItem = async (req, res, next) => {
 
     return res.status(200).json(item);
   } catch (err) {
-    next(err);
+  return next(err);
   }
 };
 
@@ -90,7 +90,7 @@ const dislikeItem = async (req, res, next) => {
 
     return res.status(200).json(item);
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 

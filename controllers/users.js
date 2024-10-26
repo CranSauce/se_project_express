@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { BadRequestError, NotFoundError, ConflictError, UnauthorizedError } = require("../utils/errors");
+const { BadRequestError, NotFoundError, ConflictError, UnauthorizedError } = require("../utils/errors/errors");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = async (req, res, next) => {
@@ -28,12 +28,12 @@ const createUser = async (req, res, next) => {
     });
   } catch (err) {
     if (err.name === "ValidationError") {
-      throw new BadRequestError("Invalid user data");
+      next(new BadRequestError("Invalid user data"));
     }
     if (err.code === 11000) {
-      throw new ConflictError("Email already exists");
+      next(new ConflictError("Email already exists"));
     }
-    next(err);
+   return next(err);
   }
 };
 
@@ -57,9 +57,9 @@ const login = async (req, res, next) => {
     });
   } catch (err) {
     if (err.name === "UnauthorizedError") {
-      throw new UnauthorizedError("Invalid email or password.");
+      next(new UnauthorizedError("Invalid email or password."));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -73,7 +73,7 @@ const getCurrentUser = async (req, res, next) => {
 
     return res.status(200).json(user);
   } catch (err) {
-    next(err);
+   return next(err);
   }
 };
 
@@ -98,9 +98,9 @@ const updateUser = async (req, res, next) => {
     return res.status(200).json(updatedUser);
   } catch (err) {
     if (err.name === "ValidationError") {
-      throw new BadRequestError("Invalid user data");
+      next(new BadRequestError("Invalid user data"));
     }
-    next(err);
+    return next(err);
   }
 };
 
